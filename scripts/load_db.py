@@ -1,7 +1,6 @@
 # ============================================================
 # load_db.py  —  Phase 4
-# Creates SQLite database, applies schema, loads clean CSVs
-# Uses row limits on large relationship files to save disk space
+# Loads clean CSVs into SQLite, filtered to years 2018-2025
 # ============================================================
 
 import os
@@ -12,15 +11,8 @@ CLEAN_DIR = os.path.join(os.path.dirname(__file__), '..', 'data', 'clean')
 DB_PATH   = os.path.join(os.path.dirname(__file__), '..', 'database', 'patents.db')
 SCHEMA    = os.path.join(os.path.dirname(__file__), '..', 'database', 'schema.sql')
 
-# Row limits — set to None for full load, or a number to cap
-LIMITS = {
-    'clean_patents.csv':         1_000_000,
-    'clean_inventors.csv':       1_000_000,
-    'clean_companies.csv':       None,        # small file, load all
-    'clean_patent_inventor.csv': 1_000_000,
-    'clean_patent_assignee.csv': 1_000_000,
-    'clean_term_of_grant.csv':   None,        # small file, load all
-}
+YEAR_FROM = 2018
+YEAR_TO   = 2025
 
 
 def get_conn():
@@ -40,61 +32,103 @@ def apply_schema(conn):
     print("  Schema applied.")
 
 
-def load_csv(conn, filename, table):
-    path = os.path.join(CLEAN_DIR, filename)
-    if not os.path.exists(path):
-        print(f"  WARNING: {filename} not found, skipping.")
-        return
-
-    row_limit = LIMITS.get(filename)
-    limit_str = f"(max {row_limit:,} rows)" if row_limit else "(all rows)"
-    print(f"  Loading {filename} -> [{table}] {limit_str} ...")
-
-    chunk_size = 50_000
+def load_patents(conn):
+    path = os.path.join(CLEAN_DIR, 'clean_patents.csv')
+    print(f"  Loading patents ({YEAR_FROM}–{YEAR_TO}) ...")
     total = 0
+    for chunk in pd.read_csv(path, dtype=str, chunksize=50_000):
+        chunk = chunk[chunk['year'].isin([str(y) for y in range(YEAR_FROM, YEAR_TO + 1)])]
+        if len(chunk) == 0:
+            continue
+        chunk.to_sql('patents', conn, if_exists='append', index=False)
+        total += len(chunk)
+        print(f"    {total:,} rows loaded ...", end='\r')
+    conn.commit()
+    print(f"  Done: {total:,} rows into [patents]          ")
+    return set(pd.read_sql("SELECT patent_id FROM patents", conn)['patent_id'])
 
-    for chunk in pd.read_csv(path, dtype=str, chunksize=chunk_size):
-        # Apply row limit if set
-        if row_limit and total >= row_limit:
-            break
-        if row_limit:
-            remaining = row_limit - total
-            chunk = chunk.iloc[:remaining]
 
+def load_inventors(conn):
+    path = os.path.join(CLEAN_DIR, 'clean_inventors.csv')
+    print(f"  Loading inventors ...")
+    total = 0
+    for chunk in pd.read_csv(path, dtype=str, chunksize=50_000):
+        chunk.to_sql('inventors', conn, if_exists='append', index=False)
+        total += len(chunk)
+        print(f"    {total:,} rows loaded ...", end='\r')
+    conn.commit()
+    print(f"  Done: {total:,} rows into [inventors]          ")
+
+
+def load_companies(conn):
+    path = os.path.join(CLEAN_DIR, 'clean_companies.csv')
+    print(f"  Loading companies ...")
+    df = pd.read_csv(path, dtype=str)
+    df.to_sql('companies', conn, if_exists='append', index=False)
+    conn.commit()
+    print(f"  Done: {len(df):,} rows into [companies]")
+
+
+def load_relationship(conn, filename, table, valid_patents):
+    path = os.path.join(CLEAN_DIR, filename)
+    print(f"  Loading {filename} -> [{table}] (filtered to {YEAR_FROM}–{YEAR_TO} patents) ...")
+    total = 0
+    for chunk in pd.read_csv(path, dtype=str, chunksize=50_000):
+        chunk = chunk[chunk['patent_id'].isin(valid_patents)]
+        if len(chunk) == 0:
+            continue
         chunk.to_sql(table, conn, if_exists='append', index=False)
         total += len(chunk)
         print(f"    {total:,} rows loaded ...", end='\r')
-
     conn.commit()
     print(f"  Done: {total:,} rows into [{table}]          ")
 
 
+def load_term_of_grant(conn, valid_patents):
+    path = os.path.join(CLEAN_DIR, 'clean_term_of_grant.csv')
+    print(f"  Loading term_of_grant (filtered to {YEAR_FROM}–{YEAR_TO} patents) ...")
+    total = 0
+    for chunk in pd.read_csv(path, dtype=str, chunksize=50_000):
+        chunk = chunk[chunk['patent_id'].isin(valid_patents)]
+        if len(chunk) == 0:
+            continue
+        chunk.to_sql('term_of_grant', conn, if_exists='append', index=False)
+        total += len(chunk)
+        print(f"    {total:,} rows loaded ...", end='\r')
+    conn.commit()
+    print(f"  Done: {total:,} rows into [term_of_grant]          ")
+
+
 def main():
     print("=" * 55)
-    print("  Patent Database Loader")
+    print("  Patent Database Loader  —  2018 to 2025")
     print("=" * 55)
     print(f"  Database: {os.path.abspath(DB_PATH)}\n")
 
     conn = get_conn()
     apply_schema(conn)
 
-    load_csv(conn, 'clean_patents.csv',          'patents')
-    load_csv(conn, 'clean_inventors.csv',        'inventors')
-    load_csv(conn, 'clean_companies.csv',        'companies')
-    load_csv(conn, 'clean_patent_inventor.csv',  'patent_inventor')
-    load_csv(conn, 'clean_patent_assignee.csv',  'patent_assignee')
-    load_csv(conn, 'clean_term_of_grant.csv',    'term_of_grant')
+    # Load patents first and get the valid patent IDs
+    load_patents(conn)
+    print("  Reading valid patent IDs for filtering ...")
+    valid_patents = set(pd.read_sql("SELECT patent_id FROM patents", conn)['patent_id'])
+    print(f"  {len(valid_patents):,} valid patent IDs loaded into memory.\n")
 
-    # Print summary
+    load_inventors(conn)
+    load_companies(conn)
+    load_relationship(conn, 'clean_patent_inventor.csv', 'patent_inventor', valid_patents)
+    load_relationship(conn, 'clean_patent_assignee.csv', 'patent_assignee', valid_patents)
+    load_term_of_grant(conn, valid_patents)
+
+    # Summary
     print("\n  Summary:")
-    tables = ['patents', 'inventors', 'companies',
-              'patent_inventor', 'patent_assignee', 'term_of_grant']
-    for t in tables:
+    for t in ['patents','inventors','companies',
+              'patent_inventor','patent_assignee','term_of_grant']:
         count = conn.execute(f"SELECT COUNT(*) FROM {t}").fetchone()[0]
         print(f"    {t:<25} {count:>10,} rows")
 
     conn.close()
-    print("\n  Database ready.")
+    print(f"\n  Database ready — {YEAR_FROM} to {YEAR_TO}.")
     print("  Next step: python scripts/report.py")
 
 

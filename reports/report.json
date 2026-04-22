@@ -1,59 +1,59 @@
 {
   "summary": {
-    "total_patents": 1000000,
-    "total_inventors": 1000000,
+    "total_patents": 2951226,
+    "total_inventors": 4294034,
     "total_companies": 572495
   },
   "top_inventors": [
     {
       "rank": 1,
-      "name": "Shunpei Yamazaki",
-      "patents": 313
+      "name": "Tao Luo",
+      "patents": 4136
     },
     {
       "rank": 2,
-      "name": "Tao Luo",
-      "patents": 204
+      "name": "Junyi Li",
+      "patents": 2364
     },
     {
       "rank": 3,
-      "name": "Kia Silverbrook",
-      "patents": 178
+      "name": "Frederick E. Shelton, IV",
+      "patents": 2176
     },
     {
       "rank": 4,
-      "name": "Jonathan P. Ive",
-      "patents": 133
+      "name": "Peter Gaal",
+      "patents": 2039
     },
     {
       "rank": 5,
-      "name": "Peter Gaal",
-      "patents": 127
+      "name": "Xiaoxia Zhang",
+      "patents": 2002
     },
     {
       "rank": 6,
-      "name": "Bartley K. Andre",
-      "patents": 118
+      "name": "Wanshi Chen",
+      "patents": 1947
     },
     {
       "rank": 7,
-      "name": "Junyi Li",
-      "patents": 115
+      "name": "Jing Sun",
+      "patents": 1794
     },
     {
       "rank": 8,
-      "name": "Richard P. Howarth",
-      "patents": 111
+      "name": "Esmael Hejazi Dinan",
+      "patents": 1730
     },
     {
       "rank": 9,
-      "name": "Kangguo Cheng",
-      "patents": 111
+      "name": "Shunpei Yamazaki",
+      "patents": 1700
     },
     {
       "rank": 10,
-      "name": "Duncan Robert Kerr",
-      "patents": 109
+      "name": "Shan Liu",
+      "patents": 1665
     }
   ],
   "top_companies": [
@@ -61,85 +61,117 @@
       "rank": 1,
       "name": "SAMSUNG DISPLAY CO., LTD.",
       "type": "3",
-      "patents": 20120
+      "patents": 79829
     },
     {
       "rank": 2,
       "name": "International Business Machines Corporation",
       "type": "2",
-      "patents": 18278
+      "patents": 48934
     },
     {
       "rank": 3,
-      "name": "CANON KABUSHIKI KAISHA",
+      "name": "Taiwan Semiconductor Manufacturing Company, Ltd.",
       "type": "3",
-      "patents": 10306
+      "patents": 25366
     },
     {
       "rank": 4,
-      "name": "SONY GROUP CORPORATION",
+      "name": "LG ELECTRONICS INC.",
       "type": "3",
-      "patents": 7256
+      "patents": 24412
     },
     {
       "rank": 5,
-      "name": "Fujitsu Limited",
-      "type": "3",
-      "patents": 6378
+      "name": "Apple Inc.",
+      "type": "2",
+      "patents": 24056
     },
     {
       "rank": 6,
-      "name": "Kabushiki Kaisha Toshiba",
+      "name": "CANON KABUSHIKI KAISHA",
       "type": "3",
-      "patents": 6125
+      "patents": 23857
     },
     {
       "rank": 7,
-      "name": "General Electric Company",
+      "name": "QUALCOMM Incorporated",
       "type": "2",
-      "patents": 5939
+      "patents": 22829
     },
     {
       "rank": 8,
-      "name": "Intel Corporation",
-      "type": "2",
-      "patents": 5927
+      "name": "HUAWEI TECHNOLOGIES CO., LTD.",
+      "type": "3",
+      "patents": 21241
     },
     {
       "rank": 9,
-      "name": "LG ELECTRONICS INC.",
-      "type": "3",
-      "patents": 5665
+      "name": "Intel Corporation",
+      "type": "2",
+      "patents": 19972
     },
     {
       "rank": 10,
-      "name": "HITACHI, LTD.",
-      "type": "3",
-      "patents": 5414
+      "name": "Microsoft Technology Licensing, LLC",
+      "type": "2",
+      "patents": 18033
     }
   ],
   "patent_types": [
     {
       "type": "utility",
-      "patents": 1000000
+      "patents": 2637403
+    },
+    {
+      "type": "design",
+      "patents": 301428
+    },
+    {
+      "type": "plant",
+      "patents": 8351
+    },
+    {
+      "type": "reissue",
+      "patents": 4043
+    },
+    {
+      "type": "statutory invention registration",
+      "patents": 1
     }
   ],
   "yearly_trends": [
     {
       "year": 2018,
-      "patents": 164524
+      "patents": 341104
     },
     {
       "year": 2019,
-      "patents": 355923
+      "patents": 392618
     },
     {
       "year": 2020,
-      "patents": 353701
+      "patents": 390572
     },
     {
       "year": 2021,
-      "patents": 125852
+      "patents": 363829
+    },
+    {
+      "year": 2022,
+      "patents": 360417
+    },
+    {
+      "year": 2023,
+      "patents": 350093
+    },
+    {
+      "year": 2024,
+      "patents": 373852
+    },
+    {
+      "year": 2025,
+      "patents": 378741
     }
   ]
 }
